@@ -89,8 +89,8 @@
 
   .blooks-row {
     display: grid;
-    grid-template-columns: repeat(9, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(6, 1fr); /* larger blooks */
+    gap: 8px;
   }
 
   .blook {
@@ -98,22 +98,30 @@
     width: 100%;
     aspect-ratio: 1/1;
     border-radius: 10px;
-    background: #f3e5f5;
+    background: transparent; /* remove card background */
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: default;
+    transition: transform 0.2s;
+  }
+
+  .blook:hover {
+    transform: scale(1.05);
   }
 
   .blook img.blook-image {
-    max-width: 60%;
-    max-height: 60%;
+    max-width: 70%;
+    max-height: 70%;
     object-fit: contain;
   }
 
-  .blook.locked {
-    background: #e0e0e0;
+  /* Locked blook effect: monochrome */
+  .blook.locked img.blook-image {
+    filter: grayscale(100%);
+    opacity: 0.6;
   }
+
   .blook.locked img.locked-overlay {
     position: absolute;
     width: 40px; height: 40px;
@@ -164,7 +172,7 @@
   .modal-card {
     position: relative;
     width: 360px;
-    aspect-ratio: 1/1; /* square modal */
+    aspect-ratio: 1/1;
     display: flex;
     flex-direction: column;
     border-radius: 12px;
@@ -200,8 +208,8 @@
 <header>
   <a href="https://scratchlet-official.github.io/market/">← Back to Market</a>
   <nav>
-    <a href="#">Home</a>
-    <a href="#">Market</a>
+    <a href="https://scratchlet-official.github.io/market/">Home</a>
+    <a href="https://scratchlet-official.github.io/market/">Market</a>
     <a href="#">Profile</a>
     <a href="#">Blooks</a>
   </nav>
@@ -235,10 +243,10 @@
 <script>
 const rarityColors = { Uncommon:"#32CD32", Rare:"#1E90FF", Epic:"#FF4500", Legendary:"#FFA500", Chroma:"#00FFFF", Unique:"#008080" };
 
-// Fetch unlocked blooks from Scratchlet Market localStorage
+// Sync with Scratchlet Market localStorage
 let { unlockedBlooks: unlocked, blookCounts } = (() => {
-  const unlockedBlooks = JSON.parse(localStorage.getItem('unlockedBlooks')) || [];
-  const blookCounts = JSON.parse(localStorage.getItem('blookCounts')) || {};
+  const unlockedBlooks = JSON.parse(localStorage.getItem('marketUnlockedBlooks')) || [];
+  const blookCounts = JSON.parse(localStorage.getItem('marketBlookCounts')) || {};
   return { unlockedBlooks, blookCounts };
 })();
 
@@ -294,10 +302,10 @@ function renderCollection(){
       blookDiv.className = 'blook' + (unlocked.includes(blook.name)?'':' locked');
 
       const countHTML = unlocked.includes(blook.name)?
-        `<div class="blook-count" style="background:${rarityColors[blook.rarity]}">${blookCounts[blook.name]||1}</div>`:'';
+        `<div class="blook-count" style="background:${rarityColors[blook.rarity]}">${blookCounts[blook.name]||1}</div>`:''
 
       blookDiv.innerHTML = `<img src="${blook.image}" class="blook-image">
-                            ${!unlocked.includes(blook.name)?`<img src="https://i.postimg.cc/TYvNxYK3/LOCKED-1.png" class="locked-overlay">` : ''}
+                            ${!unlocked.includes(blook.name)?`<img src="https://i.postimg.cc/TYvNxYK3/LOCKED-1.png" class="locked-overlay">` : '' }
                             ${countHTML}`;
 
       blookDiv.addEventListener('click', () => {
@@ -325,8 +333,8 @@ document.getElementById('unlock-btn').addEventListener('click', () => {
       blookCounts[blook.name] = 1;
     }
   }));
-  localStorage.setItem('unlockedBlooks', JSON.stringify(unlocked));
-  localStorage.setItem('blookCounts', JSON.stringify(blookCounts));
+  localStorage.setItem('marketUnlockedBlooks', JSON.stringify(unlocked));
+  localStorage.setItem('marketBlookCounts', JSON.stringify(blookCounts));
   renderCollection();
 });
 
