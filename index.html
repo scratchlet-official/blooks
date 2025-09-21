@@ -89,7 +89,7 @@
 
   .blooks-row {
     display: grid;
-    grid-template-columns: repeat(6, 1fr); /* larger blooks */
+    grid-template-columns: repeat(6, 1fr);
     gap: 8px;
   }
 
@@ -98,7 +98,7 @@
     width: 100%;
     aspect-ratio: 1/1;
     border-radius: 10px;
-    background: transparent; /* remove card background */
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -116,7 +116,6 @@
     object-fit: contain;
   }
 
-  /* Locked blook effect: monochrome */
   .blook.locked img.blook-image {
     filter: grayscale(100%);
     opacity: 0.6;
@@ -154,7 +153,6 @@
   .scroll-card::-webkit-scrollbar { width: 8px; }
   .scroll-card::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 4px; }
 
-  /* Modal */
   #blook-modal {
     position: fixed;
     inset: 0;
@@ -236,6 +234,7 @@
       <h2 id="modal-blook-name"></h2>
       <p><strong>Rarity:</strong> <span id="modal-blook-rarity"></span></p>
       <p><strong>Chance:</strong> <span id="modal-blook-chance"></span></p>
+      <p><strong>Owned:</strong> <span id="modal-blook-count"></span></p>
     </div>
   </div>
 </div>
@@ -243,7 +242,7 @@
 <script>
 const rarityColors = { Uncommon:"#32CD32", Rare:"#1E90FF", Epic:"#FF4500", Legendary:"#FFA500", Chroma:"#00FFFF", Unique:"#008080" };
 
-// Sync with Scratchlet Market localStorage
+// Load saved data
 let { unlockedBlooks: unlocked, blookCounts } = (() => {
   const unlockedBlooks = JSON.parse(localStorage.getItem('marketUnlockedBlooks')) || [];
   const blookCounts = JSON.parse(localStorage.getItem('marketBlookCounts')) || {};
@@ -315,6 +314,7 @@ function renderCollection(){
         document.getElementById('modal-blook-name').textContent = blook.name;
         document.getElementById('modal-blook-rarity').textContent = blook.rarity;
         document.getElementById('modal-blook-chance').textContent = blook.chance;
+        document.getElementById('modal-blook-count').textContent = blookCounts[blook.name] || 1;
         document.getElementById('blook-modal').style.display='flex';
       });
 
@@ -326,11 +326,14 @@ function renderCollection(){
   });
 }
 
+// Unlock button now increments duplicates
 document.getElementById('unlock-btn').addEventListener('click', () => {
-  packs.forEach(pack => pack.blooks.forEach(blook=>{
+  packs.forEach(pack => pack.blooks.forEach(blook => {
     if(!unlocked.includes(blook.name)){
       unlocked.push(blook.name);
       blookCounts[blook.name] = 1;
+    } else {
+      blookCounts[blook.name] = (blookCounts[blook.name] || 1) + 1;
     }
   }));
   localStorage.setItem('marketUnlockedBlooks', JSON.stringify(unlocked));
