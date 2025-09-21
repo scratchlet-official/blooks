@@ -1,1 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Blooks Collection - Scratchlet</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: 'Nunito', sans-serif;
+    background: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
 
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: #512da8;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 100;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+
+  header a { color: white; text-decoration: none; font-weight: 600; font-size: 18px; }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 90px 0 20px;
+    color: #4a148c;
+  }
+
+  #unlock-btn {
+    display: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 12px;
+    background: #7b1fa2;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: transform 0.2s, background 0.2s;
+  }
+  #unlock-btn:hover { transform: scale(1.05); background: #9c27b0; }
+
+  .scroll-card {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.18);
+    width: 90%;
+    max-width: 1400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pack { margin-bottom: 40px; }
+  .pack-name {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: #7b1fa2;
+    font-weight: 700;
+  }
+
+  .blooks-row {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 12px;
+  }
+
+  .blook {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: 15px;
+    background: #f3e5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+  }
+  .blook:hover {
+    transform: scale(1.06);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+  }
+
+  .blook img.blook-image {
+    max-width: 65%;
+    max-height: 65%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .blook.locked { cursor: default; background: #e0e0e0; }
+  .blook.locked::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    border-radius: 15px;
+  }
+  .blook.locked img.locked-overlay {
+    position: absolute;
+    width: 30px; height: 30px;
+    top: 50%; left: 50%; transform: translate(-50%,-50%);
+    z-index: 10; pointer-events: none;
+  }
+
+  .blook-count {
+    position: absolute;
+    bottom: 6px; left: 6px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    color: white; font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; z-index: 20;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    background: #f3f4f6;
+    margin-top: 20px;
+    border-radius: 12px;
+  }
+
+  .scroll-card::-webkit-scrollbar { width: 8px; }
+  .scroll-card::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 4px; }
+
+  /* Modal */
+  #blook-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: none;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(3px);
+  }
+
+  .modal-card {
+    position: relative;
+    background: white;
+    border-radius: 22px;
+    max-width: 900px;
+    width: 92%;
+    display: flex;
+    overflow: hidden;
+    z-index: 210;
+    box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+    transition: transform .24s ease, box-shadow .24s ease, border .2s ease;
+    border: 6px solid transparent; /* colored by rarity on open */
+  }
+  .modal-card:hover { transform: scale(1.01); }
+
+  /* Left: background with Blook image directly on it (no inner card) */
+  .blook-image-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 28px;
+    background-color: #e0e0e0;
+    background-image: url('https://i.postimg.cc/764GtCtH/Placeholder-Pack.webp');
+    background-size: contain;        /* fit the entire image */
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+  }
+
+  /* Blook image now placed directly on background and 50% size */
+  .blook-image-section img {
+    max-width: 50%;
+    max-height: 50%;
+    border-radius: 12px;
+    display: block;
+  }
+
+  .blook-info-section {
+    flex: 1;
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;
+    background: #f3e5f5;
+  }
+  .blook-info-section h2 { margin: 0; font-size: 2.2rem; color: #7b1fa2; }
+  .blook-info-section p { margin: 0; font-size: 1.2rem; color: #333; }
+  .blook-info-section span { font-weight: 700; color: #512da8; }
+
+  @media (max-width: 900px) {
+    .modal-card { flex-direction: column; }
+    .blook-info-section { padding: 20px; text-align: center; }
+    .blook-image-section { padding: 18px; }
+  }
+  @media (max-width: 600px) {
+    .blooks-row { grid-template-columns: repeat(3, 1fr); }
+    .page-title { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="https://scratchlet-official.github.io/market/">← Back to Market</a>
+  <span>Blooks Collection</span>
+</header>
+
+<h1 class="page-title">Blooks</h1>
+<button id="unlock-btn">Unlock All Blooks</button>
+
+<div class="scroll-card" id="collection"></div>
+
+<footer>
+  © 2025 Scratchlet - Connected to
+  <a href="https://scratchlet-official.github.io/market/"> Market</a>
+</footer>
+
+<!-- Modal (no inner image card) -->
+<div id="blook-modal">
+  <div class="modal-overlay"></div>
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="blook-image-section">
+      <img id="modal-blook-image" src="" alt="Blook image">
+    </div>
+    <div class="blook-info-section">
+      <h2 id="modal-blook-name"></h2>
+      <p><strong>Rarity:</strong> <span id="modal-blook-rarity"></span></p>
+      <p><strong>Chance:</strong> <span id="modal-blook-chance"></span></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- configuration / state ---
+  const currentUser = "SuperMemes_64";
+  const unlockBtn = document.getElementById('unlock-btn');
+  if (currentUser === "SuperMemes_64") unlockBtn.style.display = 'block';
+
+  let unlocked = JSON.parse(localStorage.getItem('unlockedBlooks')) || [];
+  let blookCounts = JSON.parse(localStorage.getItem('blookCounts')) || {};
+
+  const rarityColors = { common:"#6c757d", rare:"#007bff", epic:"#9b59b6", legendary:"#f39c12" };
+
+  const packs = [
+    { pack:"Placeholder Pack", blooks:[
+      { name:"Blook 1", image:"https://i.postimg.cc/9fZwBPpg/Placeholder.png", rarity:"common", chance:"40%" },
+      { name:"Blook 2", image:"https://i.postimg.cc/9fZwBPpg/Placeholder.png", rarity:"rare", chance:"30%" },
+      { name:"Blook 3", image:"https://i.postimg.cc/9fZwBPpg/Placeholder.png", rarity:"epic", chance:"20%" },
+      { name:"Blook 4", image:"https://i.postimg.cc/9fZwBPpg/Placeholder.png", rarity:"legendary", chance:"10%" }
+    ]}
+  ];
+
+  // --- render ---
+  function renderCollection(packs) {
+    const container = document.getElementById('collection');
+    container.innerHTML = '';
+    packs.forEach(pack => {
+      const packDiv = document.createElement('div');
+      packDiv.className = 'pack';
+
+      const packName = document.createElement('div');
+      packName.className = 'pack-name';
+      packName.textContent = pack.pack;
+      packDiv.appendChild(packName);
+
+      const blooksRow = document.createElement('div');
+      blooksRow.className = 'blooks-row';
+
+      pack.blooks.forEach(blook => {
+        const blookDiv = document.createElement('div');
+        const isUnlocked = unlocked.includes(blook.name);
+        blookDiv.className = 'blook' + (isUnlocked ? '' : ' locked');
+
+        let countHTML = '';
+        if (isUnlocked) {
+          const count = blookCounts[blook.name] || 1;
+          const color = rarityColors[blook.rarity] || '#6c757d';
+          countHTML = `<div class="blook-count" style="background:${color}">${count}</div>`;
+        }
+
+        blookDiv.innerHTML = `
+          <img src="${blook.image}" alt="${blook.name}" class="blook-image">
+          ${!isUnlocked ? `<img src="https://i.postimg.cc/Zn515FgH/locked.png" class="locked-overlay">` : ''}
+          ${countHTML}
+        `;
+
+        blookDiv.addEventListener('click', () => {
+          if (!isUnlocked) return;
+          // populate modal
+          document.getElementById('modal-blook-image').src = blook.image;
+          document.getElementById('modal-blook-name').textContent = blook.name;
+          document.getElementById('modal-blook-rarity').textContent = blook.rarity;
+          document.getElementById('modal-blook-chance').textContent = blook.chance || 'Unknown';
+
+          // color modal border by rarity
+          const modalCard = document.querySelector('.modal-card');
+          modalCard.style.borderColor = rarityColors[blook.rarity] || '#000';
+
+          document.getElementById('blook-modal').style.display = 'flex';
+        });
+
+        blooksRow.appendChild(blookDiv);
+      });
+
+      packDiv.appendChild(blooksRow);
+      container.appendChild(packDiv);
+    });
+  }
+
+  // --- unlock all (local only) ---
+  unlockBtn.addEventListener('click', () => {
+    packs.forEach(pack => {
+      pack.blooks.forEach(blook => {
+        if (!unlocked.includes(blook.name)) {
+          unlocked.push(blook.name);
+          blookCounts[blook.name] = 1;
+        }
+      });
+    });
+    localStorage.setItem('unlockedBlooks', JSON.stringify(unlocked));
+    localStorage.setItem('blookCounts', JSON.stringify(blookCounts));
+    renderCollection(packs);
+    alert('All Blooks unlocked!');
+    // (Optional: call market API here if you have one)
+  });
+
+  // close modal by clicking overlay or Esc
+  document.querySelector('.modal-overlay').addEventListener('click', () => {
+    document.getElementById('blook-modal').style.display = 'none';
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.getElementById('blook-modal').style.display = 'none';
+  });
+
+  // initial render
+  renderCollection(packs);
+</script>
+</body>
+</html>
