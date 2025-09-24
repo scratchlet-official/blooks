@@ -6,6 +6,8 @@
 <title>Scratchlet - Blooks</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Titan+One&display=swap" rel="stylesheet">
 <style>
+  * {margin:0; padding:0; box-sizing:border-box;}
+
   body {
     font-family: "Nunito", sans-serif;
     background: 
@@ -20,32 +22,55 @@
     color: white;
   }
 
-  header {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    background: #512da8;
-    color: white;
-    padding: 15px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    z-index: 100;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-    font-family: "Titan One", cursive;
+  .header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px;
+    background:rgba(255,255,255,0.1);
+    border-radius:15px;
+    backdrop-filter:blur(10px);
+    border:2px solid rgba(255,255,255,0.2);
+    margin-bottom:30px;
   }
+  .logo-text {
+    font-family:"Titan One",sans-serif;
+    font-size:2.5em;
+    color: white;
+    text-shadow:2px 2px 4px rgba(0,0,0,0.3);
+  }
+  .nav-buttons { display:flex; gap:12px; }
+  .nav-btn {
+    background: rgba(255,255,255,0.9);
+    color: #FF8C00;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration:none;
+    transition: all 0.3s ease;
+    box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  }
+  .nav-btn:hover { background:white; transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,0.3); }
 
-  header a, header nav a { color: white; text-decoration: none; font-weight: 600; font-size: 18px; margin: 0 6px; }
-  header nav a { background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 8px; }
+  #coin-display {
+    font-weight: 700;
+    font-size: 1.2rem;
+    background: rgba(255,255,255,0.2);
+    padding: 8px 16px;
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+  }
 
   .page-title {
     font-size: 2.5rem;
     font-weight: 700;
     text-align: center;
-    margin: 120px 0 20px;
-    color: #4a148c;
+    margin: 40px 0 20px;
+    color: white;
     font-family: "Titan One", cursive;
+    text-shadow: 4px 4px 6px rgba(0,0,0,0.2);
   }
 
   #unlock-btn {
@@ -55,13 +80,12 @@
     margin: 0 auto 20px auto;
     border: none;
     border-radius: 12px;
-    background: #7b1fa2;
+    background: #FF8C00;
     color: white;
     cursor: pointer;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
   }
-
-  #unlock-btn:hover { background: #9c27b0; }
+  #unlock-btn:hover { background: #ffa733; }
 
   .scroll-card {
     background: rgba(255,255,255,0.15);
@@ -77,151 +101,104 @@
     margin: auto;
     gap: 30px;
   }
-
   .pack-name {
+    font-family: "Titan One", cursive;
     font-size: 1.8rem;
     font-weight: 700;
-    color: #7b1fa2;
+    color: #ffffff;
     margin-bottom: 6px;
-    border-bottom: 2px solid #7b1fa2;
+    border-bottom: 2px solid #ffffff;
     padding-bottom: 6px;
   }
-
-  .blooks-row {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
-  }
-
+  .blooks-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
   .blook {
     position: relative;
     width: 100%;
     aspect-ratio: 1/1;
     border-radius: 10px;
-    background: transparent;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: default;
+    align-items: center; justify-content: center;
     transition: transform 0.2s;
+    cursor: default;
   }
-
-  .blook:hover {
-    transform: scale(1.05);
-  }
-
-  .blook img.blook-image {
-    max-width: 70%;
-    max-height: 70%;
-    object-fit: contain;
-  }
-
-  .blook.locked img.blook-image {
-    filter: grayscale(100%);
-    opacity: 0.6;
-  }
-
+  .blook:hover { transform: scale(1.05); }
+  .blook img.blook-image { max-width: 70%; max-height: 70%; object-fit: contain; }
+  .blook.locked img.blook-image { filter: grayscale(100%); opacity: 0.6; }
   .blook.locked img.locked-overlay {
-    position: absolute;
-    width: 40px; height: 40px;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 20;
-    pointer-events: none;
+    position: absolute; width: 40px; height: 40px;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 20; pointer-events: none;
   }
-
   .blook-count {
-    position: absolute;
-    bottom: 4px; left: 4px;
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    color: white; font-size: 12px;
-    display: flex; align-items: center; justify-content: center;
+    position: absolute; bottom: 4px; left: 4px;
+    width: 22px; height: 22px; border-radius: 50%;
+    color: white; font-size: 12px; display: flex;
+    align-items: center; justify-content: center;
     font-weight: bold; z-index: 20;
     box-shadow: 0 2px 6px rgba(0,0,0,0.25);
   }
 
-  footer {
-    text-align: center;
-    padding: 20px;
-    font-size: 14px;
-    margin-top: 20px;
-    border-radius: 12px;
-    color: #fff;
-  }
+  footer { text-align: center; padding: 20px; font-size: 14px; margin-top: 20px; color: #fff; }
 
   .scroll-card::-webkit-scrollbar { width: 8px; }
-  .scroll-card::-webkit-scrollbar-thumb { background: #7b1fa2; border-radius: 4px; }
+  .scroll-card::-webkit-scrollbar-thumb { background: #ffffff; border-radius: 4px; }
 
   #blook-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 200;
-    display: none;
-    justify-content: center;
-    align-items: center;
+    position: fixed; inset: 0; z-index: 200;
+    display: none; justify-content: center; align-items: center;
   }
   .modal-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(3px);
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(3px);
   }
   .modal-card {
-    position: relative;
-    width: 360px;
-    aspect-ratio: 1/1;
-    display: flex;
-    flex-direction: column;
-    border-radius: 12px;
-    overflow: hidden;
+    position: relative; width: 360px; aspect-ratio: 1/1;
+    display: flex; flex-direction: column;
+    border-radius: 12px; overflow: hidden;
     box-shadow: 0 18px 60px rgba(0,0,0,0.35);
-    background: #f3e5f5;
+    background: #ff9d00;
   }
   .blook-image-section {
-    flex: 1;
-    position: relative;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    flex: 1; position: relative;
+    background-size: cover; background-position: center;
   }
   .blook-image-section img {
-    position: absolute;
-    top: 50%; left: 50%;
+    position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    max-width: 50%;
-    max-height: 50%;
-    border-radius: 12px;
+    max-width: 50%; max-height: 50%; border-radius: 12px;
   }
-  .blook-info-section {
-    padding: 16px;
-    text-align: center;
-  }
-  .blook-info-section h2 { margin: 0; font-size: 1.8rem; color: #7b1fa2; }
+  .blook-info-section { padding: 16px; text-align: center; }
+  .blook-info-section h2 { margin: 0; font-size: 1.8rem; color: #fff; }
   .blook-info-section p { margin: 4px 0; font-size: 1rem; color: #333; }
+  .modal-actions { display:flex; justify-content:center; gap:12px; margin-top:10px; }
+  .sell-btn {
+    padding:8px 14px; border:none; border-radius:8px;
+    cursor:pointer; font-weight:600;
+  }
+  .sell-one { background:#ff0800; color:white; }
+  .sell-dupes { background:#3300ff; color:white; }
 </style>
 </head>
 <body>
 
-<header>
-  <a href="https://scratchlet-official.github.io/market/">← Back to Market</a>
-  <nav>
-    <a href="https://scratchlet-official.github.io/market/">Home</a>
-    <a href="https://scratchlet-official.github.io/market/">Market</a>
-    <a href="#">Profile</a>
-    <a href="#">Blooks</a>
-  </nav>
-  <span>Blooks Collection</span>
-</header>
+<div class="header">
+  <div class="logo-text">Scratchlet</div>
+  <div class="nav-buttons">
+    <a href="https://scratchlet-official.github.io/home/" class="nav-btn">🏠 Home</a>
+    <a href="https://scratchlet-official.github.io/stats/" class="nav-btn">📊 Stats</a>
+    <a href="https://scratchlet-official.github.io/profile/" class="nav-btn">👤 Profile</a>
+    <a href="https://scratchlet-official.github.io/friends/" class="nav-btn">👥 Friends</a>
+    <a href="https://scratchlet-official.github.io/market/" class="nav-btn">🛒 Market</a>
+    <button class="nav-btn" onclick="logout()" style="background:rgba(255,0,0,0.3);color:white;">🚪 Logout</button>
+  </div>
+  <div id="coin-display">💰 Coins: 0</div>
+</div>
 
 <h1 class="page-title">Blooks</h1>
 <button id="unlock-btn">Unlock All Blooks</button>
-
 <div class="scroll-card" id="collection"></div>
 
-<footer>
-  Scratchlet © 2024 • The Ultimate Blooket Remix Experience
-</footer>
+<footer>Scratchlet © 2024 • The Ultimate Blooket Remix Experience</footer>
 
 <!-- Modal -->
 <div id="blook-modal">
@@ -235,14 +212,21 @@
       <p><strong>Rarity:</strong> <span id="modal-blook-rarity"></span></p>
       <p><strong>Chance:</strong> <span id="modal-blook-chance"></span></p>
       <p><strong>Owned:</strong> <span id="modal-blook-count"></span></p>
+      <div class="modal-actions">
+        <button class="sell-btn sell-one" onclick="sellBlook()">Sell Blook</button>
+        <button class="sell-btn sell-dupes" onclick="sellAllDuplicates()">Sell All Duplicates</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
 const rarityColors = { Uncommon:"#32CD32", Rare:"#1E90FF", Epic:"#FF4500", Legendary:"#FFA500", Chroma:"#00FFFF", Unique:"#008080" };
+const sellValues = { Uncommon:5, Rare:20, Epic:75, Legendary:200, Chroma:1000, Unique:500 };
 
-// Load saved data
+let coins = parseInt(localStorage.getItem('scratchletCoins')) || 0;
+document.getElementById('coin-display').textContent = `💰 Coins: ${coins}`;
+
 let { unlockedBlooks: unlocked, blookCounts } = (() => {
   const unlockedBlooks = JSON.parse(localStorage.getItem('marketUnlockedBlooks')) || [];
   const blookCounts = JSON.parse(localStorage.getItem('marketBlookCounts')) || {};
@@ -265,24 +249,11 @@ const packs = [
       {name:"French Toast",rarity:"Epic",chance:"5%",image:"https://i.postimg.cc/QCPv3YYh/frenchtoast.webp"}
     ]
   },
-  {
-    pack:"Wonderland Pack",
-    background:"https://i.postimg.cc/qRdbg5WQ/wonderland-background.webp",
-    blooks:[
-      {name:"Two of Spades",rarity:"Uncommon",chance:"15.2%",image:"https://i.postimg.cc/X7nRspHx/twoofspades.webp"},
-      {name:"Eat Me",rarity:"Uncommon",chance:"15%",image:"https://i.postimg.cc/bvGc1WCh/eat.webp"},
-      {name:"Drink Me",rarity:"Uncommon",chance:"15%",image:"https://i.postimg.cc/6pbx2thc/drink.webp"},
-      {name:"Alice",rarity:"Uncommon",chance:"15%",image:"https://i.postimg.cc/RVRBmc6j/alice.webp"},
-      {name:"Queen of Hearts",rarity:"Uncommon",chance:"15%",image:"https://i.postimg.cc/SRfwyhsW-/queenofhearts.webp"},
-      {name:"Dormouse",rarity:"Rare",chance:"6.5%",image:"https://i.postimg.cc/fTZN1HLc/dormouse.webp"},
-      {name:"White Rabbit",rarity:"Rare",chance:"6.5%",image:"https://i.postimg.cc/jq6V6zXL/whiterabbit.webp"},
-      {name:"Cheshire Cat",rarity:"Rare",chance:"6.5%",image:"https://i.postimg.cc/1X0ZfFWV/cheshirecat.webp"},
-      {name:"Caterpillar",rarity:"Epic",chance:"2.5%",image:"https://i.postimg.cc/9Xy283WX/caterpillar.webp"}
-    ]
-  }
+  
 ];
 
 const collection = document.getElementById('collection');
+let currentModalBlook = null;
 
 function renderCollection(){
   collection.innerHTML = '';
@@ -301,7 +272,7 @@ function renderCollection(){
       blookDiv.className = 'blook' + (unlocked.includes(blook.name)?'':' locked');
 
       const countHTML = unlocked.includes(blook.name)?
-        `<div class="blook-count" style="background:${rarityColors[blook.rarity]}">${blookCounts[blook.name]||1}</div>`:''
+        `<div class="blook-count" style="background:${rarityColors[blook.rarity]}">${blookCounts[blook.name]||1}</div>`:'';
 
       blookDiv.innerHTML = `<img src="${blook.image}" class="blook-image">
                             ${!unlocked.includes(blook.name)?`<img src="https://i.postimg.cc/TYvNxYK3/LOCKED-1.png" class="locked-overlay">` : '' }
@@ -309,6 +280,7 @@ function renderCollection(){
 
       blookDiv.addEventListener('click', () => {
         if(!unlocked.includes(blook.name)) return;
+        currentModalBlook = blook;
         document.getElementById('modal-blook-image').src = blook.image;
         document.getElementById('modal-blook-image-section').style.backgroundImage = `url('${pack.background}')`;
         document.getElementById('modal-blook-name').textContent = blook.name;
@@ -326,7 +298,45 @@ function renderCollection(){
   });
 }
 
-// Unlock button now increments duplicates
+function updateCoins(val){
+  coins += val;
+  localStorage.setItem('scratchletCoins', coins);
+  document.getElementById('coin-display').textContent = `💰 Coins: ${coins}`;
+}
+
+function sellBlook(){
+  if(!currentModalBlook) return;
+  const name = currentModalBlook.name;
+  if(blookCounts[name] > 0){
+    updateCoins(sellValues[currentModalBlook.rarity] || 1);
+    blookCounts[name]--;
+    if(blookCounts[name] <= 0){
+      unlocked = unlocked.filter(n => n !== name);
+      delete blookCounts[name];
+    }
+    localStorage.setItem('marketUnlockedBlooks', JSON.stringify(unlocked));
+    localStorage.setItem('marketBlookCounts', JSON.stringify(blookCounts));
+    renderCollection();
+    document.getElementById('blook-modal').style.display='none';
+  }
+}
+
+function sellAllDuplicates(){
+  if(!currentModalBlook) return;
+  const name = currentModalBlook.name;
+  const count = blookCounts[name] || 0;
+  if(count > 1){
+    const dupes = count - 1;
+    updateCoins((sellValues[currentModalBlook.rarity] || 1) * dupes);
+    blookCounts[name] = 1;
+    localStorage.setItem('marketUnlockedBlooks', JSON.stringify(unlocked));
+    localStorage.setItem('marketBlookCounts', JSON.stringify(blookCounts));
+    renderCollection();
+    document.getElementById('blook-modal').style.display='none';
+  }
+}
+
+// Unlock button increments duplicates
 document.getElementById('unlock-btn').addEventListener('click', () => {
   packs.forEach(pack => pack.blooks.forEach(blook => {
     if(!unlocked.includes(blook.name)){
