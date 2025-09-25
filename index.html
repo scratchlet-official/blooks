@@ -221,19 +221,32 @@
 </div>
 
 <script>
+// ----------------- User Data -----------------
+function initUserData() {
+  if (!localStorage.getItem('userData')) {
+    localStorage.setItem('userData', JSON.stringify({
+      username: "SuperMemes_64",
+      coins: 0, // new users start with 0 coins
+      unlockedBlooks: [],
+      blookCounts: {},
+      totalPacksOpened: 0
+    }));
+  }
+  return JSON.parse(localStorage.getItem('userData'));
+}
+function loadUserData() {
+  const data = initUserData();
+  document.getElementById('coin-display').textContent = `💰 Coins: ${data.coins}`;
+  return data;
+}
+function saveUserData(data) {
+  localStorage.setItem('userData', JSON.stringify(data));
+}
+
+// ----------------- Blooks -----------------
 const rarityColors = { Uncommon:"#32CD32", Rare:"#1E90FF", Epic:"#FF4500", Legendary:"#FFA500", Chroma:"#00FFFF", Unique:"#008080" };
 const sellValues = { Uncommon:5, Rare:20, Epic:75, Legendary:200, Chroma:1000, Unique:500 };
 
-// Coins
-let coins = parseInt(localStorage.getItem('scratchletCoins')) || 0;
-document.getElementById('coin-display').textContent = `💰 Coins: ${coins}`;
-
-// Shared storage
-let unlocked = JSON.parse(localStorage.getItem('marketUnlockedBlooks')) || [];
-let blookCounts = JSON.parse(localStorage.getItem('marketBlookCounts')) || {};
-let totalPacksOpened = parseInt(localStorage.getItem('marketTotalPacksOpened')) || 0;
-
-// Packs (sample)
 const packs = [
   {
     pack:"Breakfast Pack",
@@ -249,28 +262,17 @@ const packs = [
       {name:"Pancakes",rarity:"Rare",chance:"9%",image:"https://i.postimg.cc/cC6PPGmF/pancakes.webp"},
       {name:"French Toast",rarity:"Epic",chance:"5%",image:"https://i.postimg.cc/QCPv3YYh/frenchtoast.webp"}
     ]
-  }
+  },
 ];
 
-// Unlock function (shared with Market)
-function unlockBlook(blook) {
-  if (!unlocked.includes(blook.name)) {
-    unlocked.push(blook.name);
-    blookCounts[blook.name] = 1;
-  } else {
-    blookCounts[blook.name] = (blookCounts[blook.name] || 1) + 1;
-  }
-  totalPacksOpened++;
-  localStorage.setItem('marketUnlockedBlooks', JSON.stringify(unlocked));
-  localStorage.setItem('marketBlookCounts', JSON.stringify(blookCounts));
-  localStorage.setItem('marketTotalPacksOpened', totalPacksOpened);
-}
-
-// Render
 const collection = document.getElementById('collection');
 let currentModalBlook = null;
 
-function renderCollection(){
+function renderCollection() {
+  const data = loadUserData();
+  const unlocked = data.unlockedBlooks;
+  const counts = data.blookCounts || {};
+
   collection.innerHTML = '';
   packs.forEach(pack => {
     const packDiv = document.createElement('div');
@@ -284,24 +286,25 @@ function renderCollection(){
 
     pack.blooks.forEach(blook => {
       const blookDiv = document.createElement('div');
-      blookDiv.className = 'blook' + (unlocked.includes(blook.name)?'':' locked');
+      const isUnlocked = unlocked.includes(blook.name);
+      blookDiv.className = 'blook' + (isUnlocked ? '' : ' locked');
 
-      const countHTML = unlocked.includes(blook.name)?
-        `<div class="blook-count" style="background:${rarityColors[blook.rarity]}">${blookCounts[blook.name]||1}</div>`:'';
+      const countHTML = isUnlocked
+        ? `<div class="blook-count" style="background:${rarityColors[blook.rarity]}">${counts[blook.name] || 1}</div>` : '';
 
       blookDiv.innerHTML = `<img src="${blook.image}" class="blook-image">
-                            ${!unlocked.includes(blook.name)?`<img src="https://i.postimg.cc/TYvNxYK3/LOCKED-1.png" class="locked-overlay">` : '' }
+                            ${!isUnlocked ? `<img src="https://i.postimg.cc/TYvNxYK3/LOCKED-1.png" class="locked-overlay">` : '' }
                             ${countHTML}`;
 
       blookDiv.addEventListener('click', () => {
-        if(!unlocked.includes(blook.name)) return;
+        if (!isUnlocked) return;
         currentModalBlook = blook;
         document.getElementById('modal-blook-image').src = blook.image;
         document.getElementById('modal-blook-image-section').style.backgroundImage = `url('${pack.background}')`;
         document.getElementById('modal-blook-name').textContent = blook.name;
         document.getElementById('modal-blook-rarity').textContent = blook.rarity;
         document.getElementById('modal-blook-chance').textContent = blook.chance;
-        document.getElementById('modal-blook-count').textContent = blookCounts[blook.name] || 1;
+        document.getElementById('modal-blook-count').textContent = counts[blook.name] || 1;
         document.getElementById('blook-modal').style.display='flex';
       });
 
@@ -313,58 +316,64 @@ function renderCollection(){
   });
 }
 
-// Coins
-function updateCoins(val){
-  coins += val;
-  localStorage.setItem('scratchletCoins', coins);
-  document.getElementById('coin-display').textContent = `💰 Coins: ${coins}`;
+function updateCoins(val) {
+  const data = loadUserData();
+  data.coins += val;
+  saveUserData(data);
+  loadUserData();
 }
 
-// Selling
-function sellBlook(){
-  if(!currentModalBlook) return;
+function sellBlook() {
+  if (!currentModalBlook) return;
+  const data = loadUserData();
   const name = currentModalBlook.name;
-  if(blookCounts[name] > 0){
+  if (data.blookCounts[name] > 0) {
     updateCoins(sellValues[currentModalBlook.rarity] || 1);
-    blookCounts[name]--;
-    if(blookCounts[name] <= 0){
-      unlocked = unlocked.filter(n => n !== name);
-      delete blookCounts[name];
+    data.blookCounts[name]--;
+    if (data.blookCounts[name] <= 0) {
+      data.unlockedBlooks = data.unlockedBlooks.filter(n => n !== name);
+      delete data.blookCounts[name];
     }
-    localStorage.setItem('marketUnlockedBlooks', JSON.stringify(unlocked));
-    localStorage.setItem('marketBlookCounts', JSON.stringify(blookCounts));
+    saveUserData(data);
     renderCollection();
     document.getElementById('blook-modal').style.display='none';
   }
 }
 
-function sellAllDuplicates(){
-  if(!currentModalBlook) return;
+function sellAllDuplicates() {
+  if (!currentModalBlook) return;
+  const data = loadUserData();
   const name = currentModalBlook.name;
-  const count = blookCounts[name] || 0;
-  if(count > 1){
+  const count = data.blookCounts[name] || 0;
+  if (count > 1) {
     const dupes = count - 1;
     updateCoins((sellValues[currentModalBlook.rarity] || 1) * dupes);
-    blookCounts[name] = 1;
-    localStorage.setItem('marketUnlockedBlooks', JSON.stringify(unlocked));
-    localStorage.setItem('marketBlookCounts', JSON.stringify(blookCounts));
+    data.blookCounts[name] = 1;
+    saveUserData(data);
     renderCollection();
     document.getElementById('blook-modal').style.display='none';
   }
 }
 
-// Unlock all button
+// ----------------- Unlock All Blooks (once) -----------------
 document.getElementById('unlock-btn').addEventListener('click', () => {
-  packs.forEach(pack => pack.blooks.forEach(blook => {
-    unlockBlook(blook);
-  }));
+  const data = loadUserData();
+  packs.forEach(pack => {
+    pack.blooks.forEach(blook => {
+      if (!data.unlockedBlooks.includes(blook.name)) {
+        data.unlockedBlooks.push(blook.name);
+        data.blookCounts[blook.name] = 1; // only unlock once
+      }
+    });
+  });
+  saveUserData(data);
   renderCollection();
 });
 
-// Modal close
 document.querySelector('.modal-overlay').addEventListener('click', ()=>{document.getElementById('blook-modal').style.display='none'});
 window.addEventListener('keydown', e=>{if(e.key==='Escape') document.getElementById('blook-modal').style.display='none'});
 
+// Init
 renderCollection();
 </script>
 </body>
