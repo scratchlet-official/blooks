@@ -224,15 +224,16 @@
 const rarityColors = { Uncommon:"#32CD32", Rare:"#1E90FF", Epic:"#FF4500", Legendary:"#FFA500", Chroma:"#00FFFF", Unique:"#008080" };
 const sellValues = { Uncommon:5, Rare:20, Epic:75, Legendary:200, Chroma:1000, Unique:500 };
 
+// Coins
 let coins = parseInt(localStorage.getItem('scratchletCoins')) || 0;
 document.getElementById('coin-display').textContent = `💰 Coins: ${coins}`;
 
-let { unlockedBlooks: unlocked, blookCounts } = (() => {
-  const unlockedBlooks = JSON.parse(localStorage.getItem('marketUnlockedBlooks')) || [];
-  const blookCounts = JSON.parse(localStorage.getItem('marketBlookCounts')) || {};
-  return { unlockedBlooks, blookCounts };
-})();
+// Shared storage
+let unlocked = JSON.parse(localStorage.getItem('marketUnlockedBlooks')) || [];
+let blookCounts = JSON.parse(localStorage.getItem('marketBlookCounts')) || {};
+let totalPacksOpened = parseInt(localStorage.getItem('marketTotalPacksOpened')) || 0;
 
+// Packs (sample)
 const packs = [
   {
     pack:"Breakfast Pack",
@@ -248,10 +249,24 @@ const packs = [
       {name:"Pancakes",rarity:"Rare",chance:"9%",image:"https://i.postimg.cc/cC6PPGmF/pancakes.webp"},
       {name:"French Toast",rarity:"Epic",chance:"5%",image:"https://i.postimg.cc/QCPv3YYh/frenchtoast.webp"}
     ]
-  },
-  
+  }
 ];
 
+// Unlock function (shared with Market)
+function unlockBlook(blook) {
+  if (!unlocked.includes(blook.name)) {
+    unlocked.push(blook.name);
+    blookCounts[blook.name] = 1;
+  } else {
+    blookCounts[blook.name] = (blookCounts[blook.name] || 1) + 1;
+  }
+  totalPacksOpened++;
+  localStorage.setItem('marketUnlockedBlooks', JSON.stringify(unlocked));
+  localStorage.setItem('marketBlookCounts', JSON.stringify(blookCounts));
+  localStorage.setItem('marketTotalPacksOpened', totalPacksOpened);
+}
+
+// Render
 const collection = document.getElementById('collection');
 let currentModalBlook = null;
 
@@ -298,12 +313,14 @@ function renderCollection(){
   });
 }
 
+// Coins
 function updateCoins(val){
   coins += val;
   localStorage.setItem('scratchletCoins', coins);
   document.getElementById('coin-display').textContent = `💰 Coins: ${coins}`;
 }
 
+// Selling
 function sellBlook(){
   if(!currentModalBlook) return;
   const name = currentModalBlook.name;
@@ -336,21 +353,15 @@ function sellAllDuplicates(){
   }
 }
 
-// Unlock button increments duplicates
+// Unlock all button
 document.getElementById('unlock-btn').addEventListener('click', () => {
   packs.forEach(pack => pack.blooks.forEach(blook => {
-    if(!unlocked.includes(blook.name)){
-      unlocked.push(blook.name);
-      blookCounts[blook.name] = 1;
-    } else {
-      blookCounts[blook.name] = (blookCounts[blook.name] || 1) + 1;
-    }
+    unlockBlook(blook);
   }));
-  localStorage.setItem('marketUnlockedBlooks', JSON.stringify(unlocked));
-  localStorage.setItem('marketBlookCounts', JSON.stringify(blookCounts));
   renderCollection();
 });
 
+// Modal close
 document.querySelector('.modal-overlay').addEventListener('click', ()=>{document.getElementById('blook-modal').style.display='none'});
 window.addEventListener('keydown', e=>{if(e.key==='Escape') document.getElementById('blook-modal').style.display='none'});
 
