@@ -38,8 +38,10 @@ body {
 .blook { position:relative; width:100%; aspect-ratio:1/1; border-radius:14px; display:flex; align-items:center; justify-content:center; transition: transform 0.25s ease, box-shadow 0.25s ease; cursor:default; background:rgba(255,255,255,0.1); backdrop-filter:blur(8px); box-shadow:0 4px 12px rgba(0,0,0,0.2); }
 .blook:hover { transform:scale(1.08); box-shadow:0 8px 20px rgba(0,0,0,0.3); }
 .blook img.blook-image { max-width:70%; max-height:70%; object-fit:contain; }
-.blook.locked { background: #555; cursor:not-allowed; }
+.blook.locked { background: #c87b00; cursor: not-allowed; }
 .blook.locked img.blook-image { opacity:0.4; filter: grayscale(80%); }
+.blook.locked img.locked-overlay { position:absolute; width:40px; height:40px; top:50%; left:50%; transform:translate(-50%,-50%); z-index:20; pointer-events:none; }
+
 .blook-count { position:absolute; bottom:6px; left:6px; width:26px; height:26px; border-radius:50%; color:white; font-size:13px; display:flex; align-items:center; justify-content:center; font-weight:bold; z-index:20; box-shadow:0 2px 6px rgba(0,0,0,0.25); border:2px solid white; }
 
 footer { text-align:center; padding:20px; font-size:14px; margin-top:20px; color:#fff; }
@@ -60,6 +62,16 @@ footer { text-align:center; padding:20px; font-size:14px; margin-top:20px; color
 .sell-one { background:linear-gradient(135deg,#ff4b2b,#ff0800); color:white; }
 .sell-dupes { background:linear-gradient(135deg,#0066ff,#3300ff); color:white; }
 .sell-btn:hover { transform:scale(1.07); filter:brightness(1.15); }
+
+/* --- Confirmation Modal --- */
+#confirm-modal { position:fixed; inset:0; display:none; justify-content:center; align-items:center; z-index:300; }
+#confirm-modal .modal-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.7); }
+#confirm-modal .confirm-card { position:relative; background:#222; padding:30px 40px; border-radius:20px; color:white; text-align:center; width:400px; box-shadow:0 10px 25px rgba(0,0,0,0.5); }
+#confirm-modal .confirm-card h2 { margin-bottom:20px; }
+#confirm-modal .confirm-card button { margin:5px; padding:10px 20px; border:none; border-radius:12px; font-weight:700; cursor:pointer; transition:0.2s; }
+#confirm-modal .confirm-card button:hover { filter:brightness(1.2); }
+#confirm-yes { background:#ff4b2b; color:white; }
+#confirm-no { background:#aaa; color:#222; }
 </style>
 </head>
 <body>
@@ -72,16 +84,18 @@ footer { text-align:center; padding:20px; font-size:14px; margin-top:20px; color
     <a href="https://scratchlet-official.github.io/profile/" class="nav-btn">👤 Profile</a>
     <a href="https://scratchlet-official.github.io/friends/" class="nav-btn">👥 Friends</a>
     <a href="https://scratchlet-official.github.io/market/" class="nav-btn">🛒 Market</a>
+    <button class="nav-btn" onclick="logout()" style="background:rgba(255,0,0,0.3);color:white;">🚪 Logout</button>
   </div>
   <div id="coin-display">💰 Coins: 0</div>
 </div>
 
 <h1 class="page-title">Blooks</h1>
+<button id="unlock-btn">Unlock All Blooks</button>
 <div class="scroll-card" id="collection"></div>
 
 <footer>Scratchlet © 2024 • The Ultimate Blooket Remix Experience</footer>
 
-<!-- Blook Modal -->
+<!-- Main Blook Modal -->
 <div id="blook-modal">
   <div class="modal-overlay"></div>
   <div class="modal-card">
@@ -94,7 +108,7 @@ footer { text-align:center; padding:20px; font-size:14px; margin-top:20px; color
       <p><strong>Chance:</strong> <span id="modal-blook-chance"></span></p>
       <p><strong>Owned:</strong> <span id="modal-blook-count"></span></p>
       <div class="modal-actions">
-        <button class="sell-btn sell-one" onclick="confirmSellBlook()">💰 Sell Blook</button>
+        <button class="sell-btn sell-one" onclick="attemptSell()">💰 Sell Blook</button>
         <button class="sell-btn sell-dupes" onclick="sellAllDuplicates()">💰 Sell Duplicates</button>
       </div>
     </div>
@@ -102,17 +116,16 @@ footer { text-align:center; padding:20px; font-size:14px; margin-top:20px; color
 </div>
 
 <!-- Confirmation Modal -->
-<div id="confirm-sell-modal" style="display:none;position:fixed;inset:0;justify-content:center;align-items:center;z-index:300;">
-  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(3px);"></div>
-  <div style="background:#222;padding:30px;border-radius:20px;text-align:center;color:white;box-shadow:0 0 20px #ffcc00;">
-    <p>⚠️ Are you sure you want to sell your last <span id="confirm-blook-name"></span>?</p>
-    <button onclick="sellBlook(true)" style="padding:10px 20px;margin:10px;border:none;border-radius:10px;background:#ff4b2b;color:white;font-weight:bold;">Yes</button>
-    <button onclick="document.getElementById('confirm-sell-modal').style.display='none'" style="padding:10px 20px;margin:10px;border:none;border-radius:10px;background:#555;color:white;font-weight:bold;">No</button>
+<div id="confirm-modal">
+  <div class="modal-overlay"></div>
+  <div class="confirm-card">
+    <h2>Are you sure you want to sell your last copy?</h2>
+    <button id="confirm-yes">Yes</button>
+    <button id="confirm-no">No</button>
   </div>
 </div>
 
 <script>
-// ----------------- User Data -----------------
 function initUserData() {
   if (!localStorage.getItem('userData')) {
     localStorage.setItem('userData', JSON.stringify({coins:0,unlockedBlooks:[],blookCounts:{}}));
@@ -129,20 +142,32 @@ function saveUserData(data) { localStorage.setItem('userData', JSON.stringify(da
 const rarityColors = { Uncommon:"#32CD32", Rare:"#1E90FF", Epic:"#FF4500", Legendary:"#FFA500", Chroma:"#00FFFF", Unique:"#008080" };
 const sellValues = { Uncommon:5, Rare:20, Epic:75, Legendary:200, Chroma:1000, Unique:500 };
 
+const packs = [
+  { pack:"Breakfast Pack", background:"https://i.postimg.cc/jdK9YNSp/download.webp",
+    blooks:[
+      {name:"Toast",rarity:"Uncommon",chance:"12.5%",image:"https://i.postimg.cc/NGJcDp4N/toast.webp"},
+      {name:"Cereal",rarity:"Uncommon",chance:"12.5%",image:"https://i.postimg.cc/HsFCDnFX/cereal.webp"},
+      {name:"Yogurt",rarity:"Uncommon",chance:"12.5%",image:"https://i.postimg.cc/7hWrLZhv/yogurt.webp"},
+      {name:"Breakfast Combo",rarity:"Uncommon",chance:"12.5%",image:"https://i.postimg.cc/zfrZvMzf/breakfastcombo.webp"},
+      {name:"Orange Juice",rarity:"Uncommon",chance:"12.5%",image:"https://i.postimg.cc/vH4dNf2G/orangejuice.webp"},
+      {name:"Milk",rarity:"Uncommon",chance:"12.5%",image:"https://i.postimg.cc/0ym18xq3/milk.webp"},
+      {name:"Waffle",rarity:"Rare",chance:"9%",image:"https://i.postimg.cc/MGmkQDHm/waffle.webp"},
+      {name:"Pancakes",rarity:"Rare",chance:"9%",image:"https://i.postimg.cc/cC6PPGmF/pancakes.webp"},
+      {name:"French Toast",rarity:"Epic",chance:"5%",image:"https://i.postimg.cc/QCPv3YYh/frenchtoast.webp"}
+    ]
+  }
+];
+
 const collection = document.getElementById('collection');
 let currentModalBlook = null;
 
-// ----------------- Render -----------------
 function renderCollection() {
   const data = loadUserData();
   const unlocked = data.unlockedBlooks;
   const counts = data.blookCounts || {};
+
   collection.innerHTML = '';
-
-  // Iterate over all packs from localStorage market data
-  const marketPacks = JSON.parse(localStorage.getItem('marketPacks') || '[]');
-
-  marketPacks.forEach(pack => {
+  packs.forEach(pack => {
     const packDiv = document.createElement('div');
     const packName = document.createElement('div');
     packName.className = 'pack-name';
@@ -158,9 +183,10 @@ function renderCollection() {
       blookDiv.className = 'blook' + (isUnlocked ? '' : ' locked');
 
       const countHTML = isUnlocked ? `<div class="blook-count" style="background:${rarityColors[blook.rarity]}">${counts[blook.name] || 1}</div>` : '';
-      blookDiv.innerHTML = `<img src="${blook.image}" class="blook-image">
-                            ${!isUnlocked ? `<img src="https://i.postimg.cc/xdc49ht5/lock.png" class="locked-overlay">` : ''}
-                            ${countHTML}`;
+      blookDiv.innerHTML = `
+        <img src="${blook.image}" class="blook-image">
+        ${!isUnlocked ? `<img src="https://i.postimg.cc/xdc49ht5/lock.png" class="locked-overlay">` : ''}
+        ${countHTML}`;
 
       blookDiv.addEventListener('click', () => {
         if (!isUnlocked) return;
@@ -182,17 +208,20 @@ function renderCollection() {
   });
 }
 
-// ----------------- Selling -----------------
-function confirmSellBlook() {
+// --- Sell functions with confirmation ---
+function attemptSell() {
+  if (!currentModalBlook) return;
   const data = loadUserData();
-  const name = currentModalBlook.name;
-  if ((data.blookCounts[name] || 0) <= 1) {
-    document.getElementById('confirm-blook-name').textContent = name;
-    document.getElementById('confirm-sell-modal').style.display = 'flex';
-  } else sellBlook();
+  const count = data.blookCounts[currentModalBlook.name] || 0;
+  if (count === 1) {
+    // Show confirm modal
+    document.getElementById('confirm-modal').style.display='flex';
+  } else {
+    sellBlook();
+  }
 }
 
-function sellBlook(confirmLast=false) {
+function sellBlook() {
   if (!currentModalBlook) return;
   let data = loadUserData();
   const name = currentModalBlook.name;
@@ -208,7 +237,7 @@ function sellBlook(confirmLast=false) {
     saveUserData(data);
     renderCollection();
     document.getElementById('blook-modal').style.display='none';
-    document.getElementById('confirm-sell-modal').style.display='none';
+    document.getElementById('confirm-modal').style.display='none';
   }
 }
 
@@ -229,8 +258,26 @@ function sellAllDuplicates() {
   }
 }
 
-document.querySelector('.modal-overlay').addEventListener('click', ()=>{document.getElementById('blook-modal').style.display='none';});
-window.addEventListener('keydown', e=>{if(e.key==='Escape') document.getElementById('blook-modal').style.display='none';});
+// --- Unlock all button ---
+document.getElementById('unlock-btn').addEventListener('click', () => {
+  let data = loadUserData();
+  packs.forEach(pack => pack.blooks.forEach(blook => {
+    if (!data.unlockedBlooks.includes(blook.name)) {
+      data.unlockedBlooks.push(blook.name);
+      data.blookCounts[blook.name] = 1;
+    }
+  }));
+  saveUserData(data);
+  renderCollection();
+});
+
+// --- Modal events ---
+document.querySelector('.modal-overlay').addEventListener('click', ()=>{document.getElementById('blook-modal').style.display='none'});
+window.addEventListener('keydown', e=>{if(e.key==='Escape') document.getElementById('blook-modal').style.display='none'});
+
+// --- Confirmation modal events ---
+document.getElementById('confirm-yes').addEventListener('click', sellBlook);
+document.getElementById('confirm-no').addEventListener('click', ()=>{document.getElementById('confirm-modal').style.display='none';});
 
 renderCollection();
 </script>
