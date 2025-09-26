@@ -6,57 +6,72 @@
 <title>Scratchlet - Blooks</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Titan+One&display=swap" rel="stylesheet">
 <style>
-  * {margin:0; padding:0; box-sizing:border-box;}
-  body {
-    font-family: "Nunito", sans-serif;
-    background: linear-gradient(rgba(210,180,140,0.15) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(210,180,140,0.15) 1px, transparent 1px),
-                linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
-    background-size: 40px 40px;
-    margin: 0;
-    padding: 20px;
-    min-height: 100vh;
-    color: white;
-  }
+* {margin:0; padding:0; box-sizing:border-box;}
+body {
+  font-family: "Nunito", sans-serif;
+  background: linear-gradient(rgba(210,180,140,0.15) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(210,180,140,0.15) 1px, transparent 1px),
+              linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
+  background-size: 40px 40px;
+  padding: 20px;
+  min-height: 100vh;
+  color: white;
+}
 
-  .header { display:flex; justify-content:space-between; align-items:center; padding:20px; background:rgba(255,255,255,0.1); border-radius:15px; backdrop-filter:blur(10px); border:2px solid rgba(255,255,255,0.2); margin-bottom:30px; }
-  .logo-text { font-family:"Titan One",sans-serif; font-size:2.5em; color:white; text-shadow:2px 2px 4px rgba(0,0,0,0.3); }
-  .nav-buttons { display:flex; gap:12px; }
-  .nav-btn { background: rgba(255,255,255,0.9); color:#FF8C00; padding:10px 20px; border:none; border-radius:20px; cursor:pointer; font-weight:600; text-decoration:none; transition:all 0.3s ease; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
-  .nav-btn:hover { background:white; transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,0.3); }
+.header { display:flex; justify-content:space-between; align-items:center; padding:20px; background:rgba(255,255,255,0.1); border-radius:15px; backdrop-filter:blur(10px); border:2px solid rgba(255,255,255,0.2); margin-bottom:30px; }
+.logo-text { font-family:"Titan One",sans-serif; font-size:2.5em; color:white; text-shadow:2px 2px 4px rgba(0,0,0,0.3); }
+.nav-buttons { display:flex; gap:12px; }
+.nav-btn { background: rgba(255,255,255,0.9); color:#FF8C00; padding:10px 20px; border:none; border-radius:20px; cursor:pointer; font-weight:600; text-decoration:none; transition:all 0.3s ease; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+.nav-btn:hover { background:white; transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,0.3); }
 
-  #coin-display { font-weight:700; font-size:1.2rem; background:rgba(255,255,255,0.2); padding:8px 16px; border-radius:12px; backdrop-filter:blur(5px); }
+#coin-display { font-weight:700; font-size:1.2rem; background:rgba(255,255,255,0.2); padding:8px 16px; border-radius:12px; backdrop-filter:blur(5px); }
 
-  .page-title { font-size:2.5rem; font-weight:700; text-align:center; margin:40px 0 20px; color:white; font-family:"Titan One",cursive; text-shadow:4px 4px 6px rgba(0,0,0,0.2); }
-  #unlock-btn { display:block; padding:12px 24px; font-size:16px; margin:0 auto 20px auto; border:none; border-radius:12px; background:#FF8C00; color:white; cursor:pointer; box-shadow:0 5px 15px rgba(0,0,0,0.2); }
-  #unlock-btn:hover { background:#ffa733; }
+.page-title { font-size:2.5rem; font-weight:700; text-align:center; margin:40px 0 20px; font-family:"Titan One",cursive; text-shadow:4px 4px 6px rgba(0,0,0,0.2); }
+#unlock-btn { display:block; padding:12px 24px; font-size:16px; margin:0 auto 20px auto; border:none; border-radius:12px; background:#FF8C00; color:white; cursor:pointer; box-shadow:0 5px 15px rgba(0,0,0,0.2); }
+#unlock-btn:hover { background:#ffa733; }
 
-  .scroll-card { background: rgba(255,255,255,0.15); border-radius:20px; padding:25px; box-shadow:0 8px 25px rgba(0,0,0,0.18); width:90%; max-width:1400px; max-height:80vh; overflow-y:auto; display:flex; flex-direction:column; margin:auto; gap:30px; }
-  .pack-name { font-family:"Titan One",cursive; font-size:1.8rem; font-weight:700; color:#ffffff; margin-bottom:6px; border-bottom:2px solid #ffffff; padding-bottom:6px; }
-  .blooks-row { display:grid; grid-template-columns:repeat(6, 1fr); gap:8px; }
-  .blook { position:relative; width:100%; aspect-ratio:1/1; border-radius:10px; display:flex; align-items:center; justify-content:center; transition: transform 0.2s; cursor:default; }
-  .blook:hover { transform:scale(1.05); }
-  .blook img.blook-image { max-width:70%; max-height:70%; object-fit:contain; }
-  .blook.locked img.blook-image { filter:grayscale(100%); opacity:0.6; }
-  .blook.locked img.locked-overlay { position:absolute; width:40px; height:40px; top:50%; left:50%; transform:translate(-50%,-50%); z-index:20; pointer-events:none; }
-  .blook-count { position:absolute; bottom:4px; left:4px; width:22px; height:22px; border-radius:50%; color:white; font-size:12px; display:flex; align-items:center; justify-content:center; font-weight:bold; z-index:20; box-shadow:0 2px 6px rgba(0,0,0,0.25); }
+.scroll-card { background: rgba(255,255,255,0.15); border-radius:20px; padding:25px; box-shadow:0 8px 25px rgba(0,0,0,0.18); width:90%; max-width:1400px; max-height:80vh; overflow-y:auto; display:flex; flex-direction:column; margin:auto; gap:30px; }
+.pack-name { font-family:"Titan One",cursive; font-size:1.8rem; font-weight:700; margin-bottom:6px; border-bottom:2px solid #ffffff; padding-bottom:6px; }
+.blooks-row { display:grid; grid-template-columns:repeat(6, 1fr); gap:12px; }
 
-  footer { text-align:center; padding:20px; font-size:14px; margin-top:20px; color:#fff; }
-  .scroll-card::-webkit-scrollbar { width:8px; }
-  .scroll-card::-webkit-scrollbar-thumb { background:#ffffff; border-radius:4px; }
+/* --- Blook cards --- */
+.blook { position:relative; width:100%; aspect-ratio:1/1; border-radius:14px; display:flex; align-items:center; justify-content:center; transition: transform 0.25s ease, box-shadow 0.25s ease; cursor:default; background:rgba(255,255,255,0.1); backdrop-filter:blur(8px); box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+.blook:hover { transform:scale(1.08); box-shadow:0 8px 20px rgba(0,0,0,0.3); }
+.blook img.blook-image { max-width:70%; max-height:70%; object-fit:contain; }
+.blook.locked { background: #c87b00; cursor: not-allowed; }
+.blook.locked img.blook-image { opacity:0.4; filter: grayscale(80%); }
+.blook.locked img.locked-overlay { position:absolute; width:40px; height:40px; top:50%; left:50%; transform:translate(-50%,-50%); z-index:20; pointer-events:none; }
 
-  #blook-modal { position:fixed; inset:0; z-index:200; display:none; justify-content:center; align-items:center; }
-  .modal-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(3px); }
-  .modal-card { position:relative; width:360px; aspect-ratio:1/1; display:flex; flex-direction:column; border-radius:12px; overflow:hidden; box-shadow:0 18px 60px rgba(0,0,0,0.35); background:#ff9d00; }
-  .blook-image-section { flex:1; position:relative; background-size:cover; background-position:center; }
-  .blook-image-section img { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); max-width:50%; max-height:50%; border-radius:12px; }
-  .blook-info-section { padding:16px; text-align:center; }
-  .blook-info-section h2 { margin:0; font-size:1.8rem; color:#fff; }
-  .blook-info-section p { margin:4px 0; font-size:1rem; color:#333; }
-  .modal-actions { display:flex; justify-content:center; gap:12px; margin-top:10px; }
-  .sell-btn { padding:8px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
-  .sell-one { background:#ff0800; color:white; }
-  .sell-dupes { background:#3300ff; color:white; }
+.blook-count { position:absolute; bottom:6px; left:6px; width:26px; height:26px; border-radius:50%; color:white; font-size:13px; display:flex; align-items:center; justify-content:center; font-weight:bold; z-index:20; box-shadow:0 2px 6px rgba(0,0,0,0.25); border:2px solid white; }
+
+footer { text-align:center; padding:20px; font-size:14px; margin-top:20px; color:#fff; }
+.scroll-card::-webkit-scrollbar { width:8px; }
+.scroll-card::-webkit-scrollbar-thumb { background:#ffffff; border-radius:4px; }
+
+/* --- Modal --- */
+#blook-modal { position: fixed; inset:0; z-index:200; display:none; justify-content:center; align-items:center; }
+.modal-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(3px); }
+.modal-card { width:850px; height:400px; display:flex; border-radius:20px; overflow:hidden; box-shadow:0 0 30px rgba(255,200,0,0.8); background:rgba(255,255,255,0.15); backdrop-filter:blur(12px); border:2px solid rgba(255,255,255,0.3); flex-direction:row; }
+.blook-image-section { flex:1; display:flex; justify-content:center; align-items:center; background-size:cover; background-position:center; }
+.blook-image-section img { max-width:60%; max-height:60%; border-radius:12px; }
+.blook-info-section { flex:1; padding:20px; display:flex; flex-direction:column; justify-content:center; text-align:left; }
+.blook-info-section h2 { margin:0; font-size:2rem; color:#fff; text-shadow:1px 1px 4px rgba(0,0,0,0.3); }
+.blook-info-section p { margin:6px 0; font-size:1rem; color:#eee; }
+.modal-actions { display:flex; gap:14px; margin-top:12px; }
+.sell-btn { padding:10px 16px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.95rem; transition:all 0.25s ease; box-shadow:0 4px 12px rgba(0,0,0,0.25); }
+.sell-one { background:linear-gradient(135deg,#ff4b2b,#ff0800); color:white; }
+.sell-dupes { background:linear-gradient(135deg,#0066ff,#3300ff); color:white; }
+.sell-btn:hover { transform:scale(1.07); filter:brightness(1.15); }
+
+/* --- Confirmation Modal --- */
+#confirm-modal { position:fixed; inset:0; display:none; justify-content:center; align-items:center; z-index:300; }
+#confirm-modal .modal-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.7); }
+#confirm-modal .confirm-card { position:relative; background:#222; padding:30px 40px; border-radius:20px; color:white; text-align:center; width:400px; box-shadow:0 10px 25px rgba(0,0,0,0.5); }
+#confirm-modal .confirm-card h2 { margin-bottom:20px; }
+#confirm-modal .confirm-card button { margin:5px; padding:10px 20px; border:none; border-radius:12px; font-weight:700; cursor:pointer; transition:0.2s; }
+#confirm-modal .confirm-card button:hover { filter:brightness(1.2); }
+#confirm-yes { background:#ff4b2b; color:white; }
+#confirm-no { background:#aaa; color:#222; }
 </style>
 </head>
 <body>
@@ -80,7 +95,7 @@
 
 <footer>Scratchlet © 2024 • The Ultimate Blooket Remix Experience</footer>
 
-<!-- Modal -->
+<!-- Main Blook Modal -->
 <div id="blook-modal">
   <div class="modal-overlay"></div>
   <div class="modal-card">
@@ -93,22 +108,27 @@
       <p><strong>Chance:</strong> <span id="modal-blook-chance"></span></p>
       <p><strong>Owned:</strong> <span id="modal-blook-count"></span></p>
       <div class="modal-actions">
-        <button class="sell-btn sell-one" onclick="sellBlook()">Sell Blook</button>
-        <button class="sell-btn sell-dupes" onclick="sellAllDuplicates()">Sell All Duplicates</button>
+        <button class="sell-btn sell-one" onclick="attemptSell()">💰 Sell Blook</button>
+        <button class="sell-btn sell-dupes" onclick="sellAllDuplicates()">💰 Sell Duplicates</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Confirmation Modal -->
+<div id="confirm-modal">
+  <div class="modal-overlay"></div>
+  <div class="confirm-card">
+    <h2>Are you sure you want to sell your last copy?</h2>
+    <button id="confirm-yes">Yes</button>
+    <button id="confirm-no">No</button>
+  </div>
+</div>
+
 <script>
-// ----------------- User Data -----------------
 function initUserData() {
   if (!localStorage.getItem('userData')) {
-    localStorage.setItem('userData', JSON.stringify({
-      coins: 0,
-      unlockedBlooks: [],
-      blookCounts: {}
-    }));
+    localStorage.setItem('userData', JSON.stringify({coins:0,unlockedBlooks:[],blookCounts:{}}));
   }
   return JSON.parse(localStorage.getItem('userData'));
 }
@@ -119,15 +139,11 @@ function loadUserData() {
 }
 function saveUserData(data) { localStorage.setItem('userData', JSON.stringify(data)); }
 
-// ----------------- Blooks -----------------
 const rarityColors = { Uncommon:"#32CD32", Rare:"#1E90FF", Epic:"#FF4500", Legendary:"#FFA500", Chroma:"#00FFFF", Unique:"#008080" };
 const sellValues = { Uncommon:5, Rare:20, Epic:75, Legendary:200, Chroma:1000, Unique:500 };
 
-// Replace with all packs and blooks used in your Market
 const packs = [
-  {
-    pack:"Breakfast Pack",
-    background:"https://i.postimg.cc/jdK9YNSp/download.webp",
+  { pack:"Breakfast Pack", background:"https://i.postimg.cc/jdK9YNSp/download.webp",
     blooks:[
       {name:"Toast",rarity:"Uncommon",chance:"12.5%",image:"https://i.postimg.cc/NGJcDp4N/toast.webp"},
       {name:"Cereal",rarity:"Uncommon",chance:"12.5%",image:"https://i.postimg.cc/HsFCDnFX/cereal.webp"},
@@ -167,9 +183,10 @@ function renderCollection() {
       blookDiv.className = 'blook' + (isUnlocked ? '' : ' locked');
 
       const countHTML = isUnlocked ? `<div class="blook-count" style="background:${rarityColors[blook.rarity]}">${counts[blook.name] || 1}</div>` : '';
-      blookDiv.innerHTML = `<img src="${blook.image}" class="blook-image">
-                            ${!isUnlocked ? `<img src="https://i.postimg.cc/TYvNxYK3/LOCKED-1.png" class="locked-overlay">` : ''}
-                            ${countHTML}`;
+      blookDiv.innerHTML = `
+        <img src="${blook.image}" class="blook-image">
+        ${!isUnlocked ? `<img src="https://i.postimg.cc/xdc49ht5/lock.png" class="locked-overlay">` : ''}
+        ${countHTML}`;
 
       blookDiv.addEventListener('click', () => {
         if (!isUnlocked) return;
@@ -191,19 +208,27 @@ function renderCollection() {
   });
 }
 
-function updateCoins(val) {
+// --- Sell functions with confirmation ---
+function attemptSell() {
+  if (!currentModalBlook) return;
   const data = loadUserData();
-  data.coins += val;
-  saveUserData(data);
-  loadUserData();
+  const count = data.blookCounts[currentModalBlook.name] || 0;
+  if (count === 1) {
+    // Show confirm modal
+    document.getElementById('confirm-modal').style.display='flex';
+  } else {
+    sellBlook();
+  }
 }
 
 function sellBlook() {
   if (!currentModalBlook) return;
-  const data = loadUserData();
+  let data = loadUserData();
   const name = currentModalBlook.name;
-  if ((data.blookCounts[name] || 0) > 0) {
-    updateCoins(sellValues[currentModalBlook.rarity] || 1);
+  const rarity = currentModalBlook.rarity;
+
+  if (data.blookCounts[name] > 0) {
+    data.coins += sellValues[rarity] || 1;
     data.blookCounts[name]--;
     if (data.blookCounts[name] <= 0) {
       data.unlockedBlooks = data.unlockedBlooks.filter(n => n !== name);
@@ -212,17 +237,20 @@ function sellBlook() {
     saveUserData(data);
     renderCollection();
     document.getElementById('blook-modal').style.display='none';
+    document.getElementById('confirm-modal').style.display='none';
   }
 }
 
 function sellAllDuplicates() {
   if (!currentModalBlook) return;
-  const data = loadUserData();
+  let data = loadUserData();
   const name = currentModalBlook.name;
+  const rarity = currentModalBlook.rarity;
   const count = data.blookCounts[name] || 0;
+
   if (count > 1) {
     const dupes = count - 1;
-    updateCoins((sellValues[currentModalBlook.rarity] || 1) * dupes);
+    data.coins += dupes * (sellValues[rarity] || 1);
     data.blookCounts[name] = 1;
     saveUserData(data);
     renderCollection();
@@ -230,9 +258,9 @@ function sellAllDuplicates() {
   }
 }
 
-// Unlock all blooks
+// --- Unlock all button ---
 document.getElementById('unlock-btn').addEventListener('click', () => {
-  const data = loadUserData();
+  let data = loadUserData();
   packs.forEach(pack => pack.blooks.forEach(blook => {
     if (!data.unlockedBlooks.includes(blook.name)) {
       data.unlockedBlooks.push(blook.name);
@@ -243,8 +271,13 @@ document.getElementById('unlock-btn').addEventListener('click', () => {
   renderCollection();
 });
 
+// --- Modal events ---
 document.querySelector('.modal-overlay').addEventListener('click', ()=>{document.getElementById('blook-modal').style.display='none'});
 window.addEventListener('keydown', e=>{if(e.key==='Escape') document.getElementById('blook-modal').style.display='none'});
+
+// --- Confirmation modal events ---
+document.getElementById('confirm-yes').addEventListener('click', sellBlook);
+document.getElementById('confirm-no').addEventListener('click', ()=>{document.getElementById('confirm-modal').style.display='none';});
 
 renderCollection();
 </script>
