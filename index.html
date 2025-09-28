@@ -128,16 +128,26 @@ footer { text-align:center; padding:20px; font-size:14px; margin-top:20px; color
 <script>
 function initUserData() {
   if (!localStorage.getItem('userData')) {
-    localStorage.setItem('userData', JSON.stringify({coins:0,unlockedBlooks:[],blookCounts:{}}));
+    localStorage.setItem('userData', JSON.stringify({
+      username: "SuperMemes_64",
+      coins: 1000,
+      unlockedBlooks: [],
+      blookCounts: {},
+      totalPacksOpened: 0
+    }));
   }
   return JSON.parse(localStorage.getItem('userData'));
 }
+
 function loadUserData() {
   const data = initUserData();
   document.getElementById('coin-display').textContent = `💰 Coins: ${data.coins}`;
   return data;
 }
-function saveUserData(data) { localStorage.setItem('userData', JSON.stringify(data)); }
+
+function saveUserData(data) {
+  localStorage.setItem('userData', JSON.stringify(data));
+}
 
 const rarityColors = { Uncommon:"#32CD32", Rare:"#1E90FF", Epic:"#FF4500", Legendary:"#FFA500", Chroma:"#00FFFF", Unique:"#008080" };
 const sellValues = { Uncommon:5, Rare:20, Epic:75, Legendary:200, Chroma:1000, Unique:500 };
@@ -214,7 +224,6 @@ function attemptSell() {
   const data = loadUserData();
   const count = data.blookCounts[currentModalBlook.name] || 0;
   if (count === 1) {
-    // Show confirm modal
     document.getElementById('confirm-modal').style.display='flex';
   } else {
     sellBlook();
