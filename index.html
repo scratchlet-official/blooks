@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Scratchlet - Blooks</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Titan+One&display=swap" rel="stylesheet">
+<link rel="shortcut icon" href="https://i.postimg.cc/Wbsrt82t/Scratchlet-Icon.png">
 <style>
 * {margin:0; padding:0; box-sizing:border-box;}
 body {
@@ -819,10 +820,10 @@ function hslToRgb(h,s,l){
   return [f(0), f(8), f(4)];
 }
 
-// ---------- Get applied colors from Settings ----------
+
 let appliedColors = JSON.parse(localStorage.getItem('appliedColors') || '{"primary":{"h":30,"s":100,"l":50},"secondary":{"h":45,"s":100,"l":50}}');
 
-// ---------- Apply background function ----------
+
 function applySettingsBackground(){
   const p = appliedColors.primary;
   const s = appliedColors.secondary;
@@ -838,7 +839,6 @@ function applySettingsBackground(){
   document.body.style.backgroundSize = "40px 40px";
 }
 
-// ---------- Initialize ----------
 applySettingsBackground();
 </script>
 </body>
